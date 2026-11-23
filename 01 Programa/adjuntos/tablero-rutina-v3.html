@@ -1,0 +1,425 @@
+<title>Tablero Rutina v3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: misma identidad que el tablero v2 (continuidad del proyecto); columna única de 1040px con bandas por sección, "hoy toca" arriba */
+:root{
+  --ground:#ECEFEC; --surface:#FFFFFF; --sunk:#E1E6E2; --ink:#13211F; --muted:#56655F; --line:#CBD3CD;
+  --accent:#0E7C6B; --accent-soft:#D3EEE8; --on-accent:#FFFFFF;
+  --night:#2447D6; --night-soft:#DDE4FB;
+  --good:#1B7A4B; --good-soft:#D9EFE2; --warn:#A65F00; --warn-soft:#F6E7CC; --bad:#B3342B; --bad-soft:#F6DCD9;
+  --c1:#0E7C6B; --c2:#2447D6; --c3:#8A5BD1; --c4:#C2571A; --c5:#5C7A1E; --c6:#B03A78; --c7:#56655F; --c8:#1B7A4B;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0E1413; --surface:#172120; --sunk:#1F2B29; --ink:#E4EBE8; --muted:#98A8A2; --line:#2E3C39;
+  --accent:#4FD1B8; --accent-soft:#123A33; --on-accent:#0E1413;
+  --night:#8CA4FF; --night-soft:#1E2A55;
+  --good:#5FD39A; --good-soft:#143526; --warn:#F0B354; --warn-soft:#3A2C10; --bad:#FF8A80; --bad-soft:#3F1B18;
+  --c1:#4FD1B8; --c2:#8CA4FF; --c3:#B899F2; --c4:#F0935A; --c5:#A9C866; --c6:#EE86BB; --c7:#98A8A2; --c8:#5FD39A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1413; --surface:#172120; --sunk:#1F2B29; --ink:#E4EBE8; --muted:#98A8A2; --line:#2E3C39;
+  --accent:#4FD1B8; --accent-soft:#123A33; --on-accent:#0E1413;
+  --night:#8CA4FF; --night-soft:#1E2A55;
+  --good:#5FD39A; --good-soft:#143526; --warn:#F0B354; --warn-soft:#3A2C10; --bad:#FF8A80; --bad-soft:#3F1B18;
+  --c1:#4FD1B8; --c2:#8CA4FF; --c3:#B899F2; --c4:#F0935A; --c5:#A9C866; --c6:#EE86BB; --c7:#98A8A2; --c8:#5FD39A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px}
+.wrap{max-width:1040px;margin-inline:auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05;letter-spacing:.01em}
+h1{font-size:clamp(40px,8vw,68px);font-weight:700;text-transform:uppercase}
+h2{font-size:30px;font-weight:600;text-transform:uppercase}
+h3{font-size:20px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:17px;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:6px;border-top:3px solid var(--ink);padding-top:12px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.top{display:flex;flex-direction:column;gap:14px}
+.status{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:999px;background:var(--sunk);color:var(--ink);white-space:nowrap}
+.pill.on{background:var(--accent);color:var(--on-accent)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.night{background:var(--night-soft);color:var(--night)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:13px}
+nav.toc a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{border-bottom-color:var(--accent);outline:none}
+a{color:var(--accent)}
+
+/* hoy */
+.today{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (max-width:760px){.today{grid-template-columns:1fr}}
+.today > div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.today .big{font-family:var(--display);font-size:clamp(38px,7vw,56px);font-weight:700;line-height:1;text-transform:uppercase}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.day{border:1px solid var(--line);background:var(--ground);padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;text-align:center}
+.day .d{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day .s{font-family:var(--display);font-size:15px;font-weight:600;line-height:1.1;text-transform:uppercase;word-break:break-word}
+.day.fixed{background:var(--accent-soft);border-color:var(--accent)}
+.day.opt{border-style:dashed}
+.day.rescue .s{color:var(--muted)}
+.day.now{outline:3px solid var(--ink);outline-offset:-1px}
+
+/* diagnóstico */
+.gap-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.gap{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.gap .k{font-size:13px;color:var(--muted)}
+.gap .v{font-family:var(--display);font-size:34px;font-weight:600;line-height:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.gap .v small{font-family:var(--mono);font-size:13px;color:var(--good);font-weight:500}
+.gap .why{font-size:13px}
+
+ol.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;max-width:72ch}
+ol.rules b{font-weight:600}
+
+/* sesiones */
+.controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end}
+.seg{display:flex;flex-direction:column;gap:4px}
+.seg .btns{display:flex;flex-wrap:wrap;gap:4px}
+button.tab{font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);color:var(--ink);border:1px solid var(--line);padding:7px 14px;cursor:pointer}
+button.tab[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+button.tab:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=time]{font-family:var(--mono);font-size:16px;padding:6px 10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.total{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline}
+.total .big{font-family:var(--display);font-size:46px;font-weight:700;line-height:1}
+.total .meta{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.bar{display:flex;height:30px;border:1px solid var(--line);background:var(--surface);overflow:hidden}
+.bar span{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--on-accent);min-width:0;overflow:hidden;border-right:1px solid var(--ground)}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:720px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td .alt{display:block;font-size:12.5px;color:var(--muted)}
+td .kpi{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;background:var(--accent-soft);color:var(--accent);padding:1px 6px;margin-left:6px;vertical-align:2px}
+.sw{display:inline-block;width:9px;height:9px;margin-right:6px;vertical-align:1px}
+.timer{display:inline-block;background:var(--accent-soft);color:var(--accent);padding:1px 7px;border-radius:3px;font-weight:500}
+.notes{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+
+/* noche */
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.step{background:var(--surface);border:1px solid var(--line);padding:10px 12px;flex:1 1 150px;display:flex;flex-direction:column;gap:2px;font-size:13.5px;min-width:0}
+.step b{font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+.step .t{font-family:var(--mono);font-size:13px;color:var(--night)}
+.step.ok{border-color:var(--good);background:var(--good-soft)}
+.step.bad{border-color:var(--bad);background:var(--bad-soft)}
+.alert{padding:10px 14px;font-size:14px;border-left:4px solid var(--warn);background:var(--warn-soft)}
+.alert.ok{border-left-color:var(--good);background:var(--good-soft)}
+
+/* gráfica sueño */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:24px}
+.block{display:flex;flex-direction:column;gap:10px;min-width:0}
+.chart{background:var(--surface);border:1px solid var(--line);padding:12px}
+.chart svg{display:block;width:100%;height:auto}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.chart .lbl{fill:var(--ink);font-size:12px}
+.chart .val{fill:var(--ink);font-weight:500}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .goal{stroke:var(--good);stroke-width:1.5;stroke-dasharray:4 3}
+.chart .goaltxt{fill:var(--good)}
+ul.clean{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+table.plain{min-width:620px}
+.todo{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px}
+.todo label{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.todo input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.todo input:checked + span{color:var(--muted);text-decoration:line-through}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Gym IA · hipertrofia · volumen limpio</span>
+  <h1>Rutina v3<br>Constancia</h1>
+  <p class="lede">Lo mismo de siempre, hecho de verdad: días fijos, sesiones de 75 min, plan B escrito y el sueño medido con el mismo peso que las series.</p>
+  <div class="status">
+    <span class="pill on">Bloque 1 · 24-nov → 21-dic</span>
+    <span class="pill good">Tobillo derecho ~90 %</span>
+    <span class="pill night">Luz apagada 23:15</span>
+    <span class="pill">Revisión 21-dic</span>
+    <span class="pill">Revisión formal 18-ene</span>
+  </div>
+  <nav class="toc" aria-label="Secciones">
+    <a href="#hoy">Hoy</a><a href="#diag">De v2 a v3</a><a href="#reglas">Reglas</a><a href="#sesiones">Sesiones y reloj</a><a href="#sueno">Sueño</a><a href="#medir">Medición</a><a href="#pend">Pendientes</a>
+  </nav>
+</header>
+
+<section id="hoy">
+  <div class="sec-head"><span class="eyebrow" id="hoyFecha">Semana tipo</span><h2>Hoy toca</h2></div>
+  <div class="today">
+    <div>
+      <span class="eyebrow">Sesión</span>
+      <span class="big" id="hoySes">—</span>
+      <span id="hoyTxt"></span>
+    </div>
+    <div>
+      <span class="eyebrow">La semana</span>
+      <div class="week" id="week"></div>
+      <span class="notes">Faltaste a un día fijo → lo recuperas el jueves o el fin de semana. Si no se puede, se salta y la semana siguiente sigue igual.</span>
+    </div>
+  </div>
+</section>
+
+<section id="diag">
+  <div class="sec-head"><span class="eyebrow">Revisión formal 23-nov · 16-sep → 20-nov · 22 sesiones</span><h2>De v2 a v3</h2></div>
+  <div class="gap-list">
+    <div class="gap"><span class="k">Sesiones por semana</span><span class="v">2.3 <small>→ 3 fijas</small></span><span class="why">La rotación continua se olvidaba: POSTERIOR II solo 3 veces en 10 semanas.</span></div>
+    <div class="gap"><span class="k">Duración media</span><span class="v">100 min <small>→ ≤ 85</small></span><span class="why">Sesiones nocturnas largas. Ahora 75 min de pesas + 10 de movilidad.</span></div>
+    <div class="gap"><span class="k">Series efectivas</span><span class="v">48 % <small>→ ≥ 75 %</small></span><span class="why">Siguieron las pirámides: igual que en Abr–Jul (52 %).</span></div>
+    <div class="gap"><span class="k">Fallo en compuestos</span><span class="v">12 <small>→ 0</small></span><span class="why">Casi todos en jalones, "según cómo me sienta".</span></div>
+    <div class="gap"><span class="k">Sueño medio</span><span class="v">5.9 h <small>→ 6.5 → 7 h</small></span><span class="why">5.3 h en las últimas 2 semanas. Entrenar a las 20 h = 5.2 h esa noche.</span></div>
+    <div class="gap"><span class="k">Peso corporal</span><span class="v">+2.5 kg <small>→ ~0.3 kg/mes</small></span><span class="why">68.9 → 71.4 en 2 meses. Cintura 77 cm. Calorías congeladas.</span></div>
+  </div>
+</section>
+
+<section id="reglas">
+  <div class="sec-head"><span class="eyebrow">Seis, no más</span><h2>Reglas</h2></div>
+  <ol class="rules">
+    <li><b>Días fijos, no rotación.</b> Martes <span class="mono">TORSO A</span> · miércoles <span class="mono">PIERNA</span> · viernes <span class="mono">TORSO B</span>. Fin de semana por la mañana, opcional <span class="mono">POSTERIOR + BRAZO</span>.</li>
+    <li><b>Tope: 75 min de pesas + 10 de movilidad.</b> Empieza lo antes posible después de almorzar. Máquina ocupada más de 2–3 min → plan B, sin pensarlo.</li>
+    <li><b>Series rectas.</b> 1–2 aproximaciones marcadas <i>warmup</i>, luego todas las series con el mismo peso. Nada de pirámides.</li>
+    <li><b>Doble progresión.</b> Tope del rango en todas las series → sube el mínimo incremento la siguiente sesión.</li>
+    <li><b>Fallo solo en la última serie de un aislamiento.</b> Compuestos (ejercicios 1–4) a RIR 1–2 aunque te sientas muy bien. ¿Día bueno? Un dropset al final de un aislamiento, nunca en un compuesto.</li>
+    <li><b>Registro mínimo en Hevy:</b> RPE/RIR nativo en la última serie del primer ejercicio y, en <span class="mono">PIERNA</span>, una nota <span class="mono">T0–10</span> del tobillo.</li>
+  </ol>
+</section>
+
+<section id="sesiones">
+  <div class="sec-head"><span class="eyebrow">Interactivo · elige sesión y la hora a la que empiezas</span><h2>Sesiones y reloj</h2></div>
+  <div class="controls">
+    <div class="seg"><span class="eyebrow">Sesión</span><div class="btns" id="sesBtns"></div></div>
+    <div class="seg"><label class="eyebrow" for="inicio">Empiezo a las</label><input type="time" id="inicio" value="17:30" step="300"></div>
+  </div>
+  <div class="total"><span class="big mono" id="totMin">—</span><span class="meta" id="totMeta"></span></div>
+  <div class="bar" id="bar" aria-hidden="true"></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Ejercicio · plan B</th><th class="n">Series × reps</th><th class="n">Aprox.</th><th class="n">Timer Hevy</th><th class="n">Bloque</th><th class="n">Terminas a las</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <div class="notes" id="notes"></div>
+
+  <h3>Y después, la noche</h3>
+  <div class="chain" id="noche"></div>
+  <div class="alert" id="nocheAlert"></div>
+  <p class="notes">Cada bloque suma aproximaciones (30 s + 60 s de pausa), las series (~45–55 s cada una), los descansos con el timer y la transición al siguiente ejercicio. En las superseries el timer va solo en el 2.º ejercicio.</p>
+</section>
+
+<section id="sueno">
+  <div class="sec-head"><span class="eyebrow">sleepdata.csv · 35 noches entre 16-sep y 20-nov</span><h2>Sueño</h2></div>
+  <div class="cols">
+    <div class="block">
+      <h3>Lo decide la hora de acostarte</h3>
+      <div class="chart" role="img" aria-label="Horas dormidas según la hora de acostarse: antes de 23:30, 6.9 h; 23:30 a 00:00, 5.9 h; 00:00 a 00:30, 5.4 h; después de 00:30, 4.8 h. Objetivo 7 h.">
+        <svg viewBox="0 0 360 190" id="chartBed"></svg>
+      </div>
+      <p class="notes">Te levantas a las ~06:35 fijo: cada minuto que te acuestas tarde se resta del sueño.</p>
+    </div>
+    <div class="block">
+      <h3>La noche después de entrenar</h3>
+      <div class="chart" role="img" aria-label="Horas dormidas la noche después de entrenar: antes de las 18 h, 6.4 h; sin entrenar, 5.9 h; a las 18 h o más tarde, 5.2 h.">
+        <svg viewBox="0 0 360 150" id="chartTrain"></svg>
+      </div>
+      <p class="notes">Pocas noches (n = 5–6 por grupo): es una señal, no una prueba.</p>
+    </div>
+    <div class="block">
+      <h3>Objetivo del bloque</h3>
+      <ul class="clean">
+        <li><b>Luz apagada a las 23:15</b> o antes, al menos <b>5 de 7</b> noches.</li>
+        <li>Media semanal de <i>tiempo dormido</i> <b>≥ 6.5 h</b> hasta el 21-dic, luego <b>≥ 7 h</b>.</li>
+        <li>Días que entrenas tarde: la hora de acostarte no se mueve. Cena y ducha planeadas.</li>
+        <li>Registra con la app al menos 6 noches por semana.</li>
+        <li>Semana con media ≤ 6 h: <b>no cuenta</b> para juzgar estancamiento y no se toca el volumen.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="medir">
+  <div class="sec-head"><span class="eyebrow">Ninguna capa decide sola</span><h2>Cómo sabremos que funciona</h2></div>
+  <div class="tbl"><table class="plain">
+    <thead><tr><th>Capa</th><th>Qué se mide</th><th>Cadencia</th><th>Vamos bien si…</th></tr></thead>
+    <tbody>
+      <tr><td><b>0 · Recuperación</b></td><td>Tiempo dormido medio, noches &lt; 6 h, hora de acostarse</td><td>Semanal</td><td>≥ 6.5 h → ≥ 7 h · luz apagada ≤ 23:15 en 5/7</td></tr>
+      <tr><td><b>1 · Proceso</b></td><td>Sesiones/sem, duración, % series efectivas, % al fallo</td><td>Cada export de Hevy</td><td>3 fijas · ≤ 85 min · ≥ 75 % · ≤ 15 % y 0 en compuestos</td></tr>
+      <tr><td><b>2 · Dosis</b></td><td>Series semanales por músculo</td><td>Mensual</td><td>Pecho 9 · espalda 12 · cuádriceps 9 · isquios 6</td></tr>
+      <tr><td><b>3 · Rendimiento</b></td><td>e1RM de los 6 KPI: Incline DB, Lat Pulldown, Pendulum, Hip Thrust, Single Arm Row, Shoulder Press</td><td>Mensual</td><td>Los 6 al alza el 21-dic; media pre-pausa el 18-ene</td></tr>
+      <tr><td><b>4 · Resultado</b></td><td>Peso medio (báscula del gym, ayunas, 3×/sem), cintura, fotos</td><td>Semanal · cinta y fotos cada 2 sem</td><td>+0.1–0.5 kg/mes con cintura ≤ 78 cm</td></tr>
+      <tr><td><b>Salud</b></td><td>Tobillo: nota T0–10 en PIERNA</td><td>Cada miércoles</td><td>T ≤ 3; si da 4+, plan B y anotarlo</td></tr>
+    </tbody>
+  </table></div>
+  <div class="chain">
+    <div class="step"><span class="t">sueño ≤ 6 h esa semana</span><b>No cuenta</b>Primero se arregla el sueño; el volumen no se toca.</div>
+    <div class="step"><span class="t">KPI plano 6 semanas</span><b>Cambia a plan B</b>O mueve el rango de repeticiones.</div>
+    <div class="step"><span class="t">peso +0.5 kg/mes o cintura &gt; 78</span><b>−150 kcal al día</b>Líquidos y snacks primero.</div>
+    <div class="step"><span class="t">peso y KPIs planos 3 sem, sueño ok</span><b>+150 kcal al día</b>Solo con sueño ≥ 6.5 h.</div>
+  </div>
+</section>
+
+<section id="pend">
+  <div class="sec-head"><span class="eyebrow">Se guarda en este navegador</span><h2>Pendientes</h2></div>
+  <ul class="todo" id="todo"></ul>
+</section>
+
+<footer>
+  <span>Fuente: <span class="mono">workouts.csv</span> de Hevy (hasta 20-nov-2026) y <span class="mono">sleepdata.csv</span>. Detalle en el vault: Rutina v3, Revisión formal 2026-11-23, Sistema de medición y Bitácora.</span>
+  <span>Historial: <a href="https://claude.ai/artifact/6u8F6WdYW1G27cwU638Yux" target="_blank" rel="noopener">Tablero Rutina v2 (sep–nov 2026)</a>.</span>
+</footer>
+</div>
+
+<script>
+// tipos: P compuesto principal, S compuesto secundario, I aislamiento, M aislamiento pequeño, SS superserie, X bloque fijo
+const REST={P:150,S:120,I:90,M:70,SS:75}, TRANS={P:120,S:120,I:90,M:90,SS:120,X:0};
+const E=(ex,alt,sets,reps,kind,o={})=>({ex,alt,sets,reps,kind,kpi:!!o.kpi,work:o.work,wu:o.wu,rest:o.rest,fixed:o.fixed});
+const MOV=E('Movilidad dinámica, cabeza a pies','Más profunda en cadera y tobillo los días de pierna','—','10 min','X',{fixed:600});
+const S={
+ 'TORSO A':{dia:'Martes',sub:'pecho + jalón',items:[MOV,
+  E('Incline DB Press','Incline Smith · máquina inclinada',3,'8–12','P',{kpi:1}),
+  E('Lat Pulldown','Jalón neutro · close grip',3,'10–12','S',{kpi:1}),
+  E('Iso-Lateral Chest Press','Seated Dip Machine',3,'10–12','S'),
+  E('Iso-Lateral Row','Single Arm Cable Row',3,'10–12','S'),
+  E('Lateral Raise Machine','Cable unilateral',3,'12–20','M'),
+  E('Triceps Pressdown ↔ Hammer Curl cable','Rope · Cross Body Hammer',3,'10–15','SS'),
+  E('Seated Leg Curl','Lying Leg Curl',3,'10–12','I')],
+  notes:['Las mancuernas del gym están en libras: regístralas en kg (20 lb = 9.07 kg).','Tríceps siempre como "Triceps Pressdown" para que el KPI sea comparable.']},
+ 'PIERNA':{dia:'Miércoles',sub:'cuádriceps + glúteo',items:[MOV,
+  E('Pendulum Squat','Squat (Smith) · Squat Machine',3,'8–12','P',{kpi:1}),
+  E('Leg Press','Hack · prensa pies altos',3,'10–15','P',{wu:1}),
+  E('Hip Thrust (Barbell)','Hip Thrust Smith · máquina',3,'8–12','P',{kpi:1}),
+  E('Lying Leg Curl','Seated Leg Curl',3,'10–12','I'),
+  E('Hip Adduction','—',2,'12–15','M'),
+  E('Seated Calf Raise','Calf en prensa',3,'10–15','M'),
+  E('Crunch Machine','Cable Crunch',2,'10–15','M')],
+  notes:['Tobillera puesta. Sin impacto ni saltos.','Nota T0–10 del tobillo en Hevy. T ≥ 4 → plan B ese día y anotarlo en Registro tobillo.']},
+ 'TORSO B':{dia:'Viernes',sub:'espalda + hombro',items:[MOV,
+  E('Single Arm Cable Row','Seated Cable Row',3,'10–12','S',{kpi:1,work:80}),
+  E('Shoulder Press (Machine Plates)','DB sentado',3,'8–12','P',{kpi:1,wu:1}),
+  E('Lat Pulldown Close Grip','Straight Arm Pulldown',3,'10–12','S'),
+  E('Chest Fly Machine','Cable fly',3,'12–15','I'),
+  E('Lateral Raise cable unilateral','Máquina',3,'12–20','M',{work:90,rest:45}),
+  E('Preacher Curl ↔ Overhead Cable Extension','EZ curl · Triceps Ext DB',3,'10–15','SS'),
+  E('Leg Extension','Single Leg Extension',3,'12–15','I')],
+  notes:['Shoulder Press: registra siempre igual (total o por lado) y anótalo una vez en la nota del ejercicio.']},
+ 'POSTERIOR + BRAZO':{dia:'Sáb/dom (opcional)',sub:'isquios + hombro posterior + brazo',items:[MOV,
+  E('Romanian Deadlift (DB)','Back Extension 45° con carga',3,'10–12','P',{wu:1}),
+  E('Lying Leg Curl','Seated Leg Curl',3,'10–12','I'),
+  E('Leg Extension','—',3,'12–15','I'),
+  E('Rear Delt Fly Machine','Face Pull',3,'12–20','M'),
+  E('Lateral Raise (cualquiera)','—',3,'12–20','M'),
+  E('Curl cable ↔ Tríceps cable','—',3,'10–15','SS')],
+  notes:['Solo si las 3 fijas ya están hechas. Si toca recuperar una fija, haces esa en lugar de esta.']}
+};
+const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const PLAN={2:'TORSO A',3:'PIERNA',5:'TORSO B'};
+const mmss=s=>Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
+const clock=m=>{m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');};
+let ses='TORSO A';
+const today=new Date().getDay();
+if(PLAN[today]) ses=PLAN[today];
+try{const s=JSON.parse(localStorage.getItem('rv3')||'{}'); if(!PLAN[today]&&S[s.ses])ses=s.ses; if(s.inicio)document.getElementById('inicio').value=s.inicio;}catch(e){}
+
+/* hoy + semana */
+(function(){
+  const d=new Date();
+  document.getElementById('hoyFecha').textContent=DIAS[today]+' '+d.getDate()+'/'+(d.getMonth()+1);
+  const hs=document.getElementById('hoySes'), ht=document.getElementById('hoyTxt');
+  if(PLAN[today]){hs.textContent=PLAN[today];ht.textContent='Día fijo. Empieza lo antes posible después de almorzar y mira abajo a qué hora terminas.';}
+  else if(today===4){hs.textContent='Recuperación';ht.textContent='Solo si faltaste el martes o el miércoles: haz esa sesión. Si no, descansa.';}
+  else if(today===6||today===0){hs.textContent='Opcional';ht.textContent='Por la mañana: POSTERIOR + BRAZO si ya hiciste las 3 fijas, o la fija que te faltó.';}
+  else{hs.textContent='Descanso';ht.textContent='Mañana toca TORSO A. Luz apagada a las 23:15.';}
+  const w=document.getElementById('week');
+  [1,2,3,4,5,6,0].forEach(i=>{
+    const el=document.createElement('div');
+    const cls=PLAN[i]?'fixed':(i===6||i===0)?'opt':(i===4)?'rescue':'';
+    el.className='day '+cls+(i===today?' now':'');
+    const s=PLAN[i]||(i===4?'Recupera':(i===6||i===0)?'Opcional':'—');
+    el.innerHTML='<span class="d">'+DIAS[i].slice(0,3)+'</span><span class="s">'+s+'</span>';
+    w.appendChild(el);
+  });
+})();
+
+function blockTime(it){
+  if(it.fixed) return {t:it.fixed};
+  const rest=it.rest??REST[it.kind];
+  const wu=it.wu??(it.kind==='P'?2:it.kind==='S'?1:0);
+  const w1=it.work??(it.kind==='M'||it.kind==='I'?55:45);
+  const work=it.kind==='SS'?w1*2+20:w1;
+  return {t:wu*90+it.sets*work+(it.sets-1)*rest+TRANS[it.kind],rest,wu};
+}
+function render(){
+  const d=S[ses], rows=document.getElementById('rows'), bar=document.getElementById('bar');
+  rows.innerHTML='';bar.innerHTML='';
+  const [hh,mi]=(document.getElementById('inicio').value||'17:30').split(':').map(Number);
+  const start=hh*60+mi;
+  let acc=0,hard=0;
+  const blocks=d.items.map(it=>[it,blockTime(it)]);
+  const total=blocks.reduce((a,[,b])=>a+b.t,0);
+  blocks.forEach(([it,b],i)=>{
+    acc+=b.t; if(!it.fixed) hard+=it.sets*(it.kind==='SS'?2:1);
+    const c='var(--c'+((i%8)+1)+')';
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td><span class="sw" style="background:'+c+'"></span>'+it.ex+(it.kpi?'<span class="kpi">KPI</span>':'')+(it.alt&&it.alt!=='—'?'<span class="alt">Plan B: '+it.alt+'</span>':'')+'</td>'+
+      '<td class="n">'+(it.fixed?it.reps:it.sets+' × '+it.reps)+'</td>'+
+      '<td class="n">'+(it.fixed?'—':(b.wu||'—'))+'</td>'+
+      '<td class="n">'+(it.fixed?'—':'<span class="timer">'+mmss(b.rest)+'</span>')+'</td>'+
+      '<td class="n">'+Math.round(b.t/60)+' min</td>'+
+      '<td class="n"><b>'+clock(start+acc/60)+'</b></td>';
+    rows.appendChild(tr);
+    const sp=document.createElement('span');sp.style.flex=b.t+' 1 0';sp.style.background=c;sp.textContent=Math.round(b.t/60)+'′';bar.appendChild(sp);
+  });
+  const endMin=start+total/60+8; // +8 min de colchón por esperas
+  document.getElementById('totMin').textContent='≈ '+Math.round(total/60)+' min';
+  document.getElementById('totMeta').textContent=d.dia+' · '+ses+' · '+d.sub+' · '+hard+' series de trabajo · con ~8 min de esperas sales a las '+clock(endMin);
+  const n=document.getElementById('notes');n.innerHTML='';d.notes.forEach(x=>{const p=document.createElement('span');p.textContent='• '+x;n.appendChild(p);});
+  document.querySelectorAll('#sesBtns .tab').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===ses));
+
+  // noche
+  const home=endMin+25, dinner=home+45;
+  const lights=23*60+15, wake=6*60+35;
+  const sleepH=((wake+1440)-lights-18)/60; // ~18 min de latencia
+  const late=endMin>21*60+30;
+  const ch=document.getElementById('noche');
+  ch.innerHTML='';
+  [['Sales del gym',clock(endMin),'Incluye ~8 min de esperas.',late?'bad':''],
+   ['En casa',clock(home),'~25 min de trayecto y ducha.',''],
+   ['Cena lista',clock(dinner),'Cena planeada antes de salir.',''],
+   ['Luz apagada','23:15','Objetivo fijo, entrenes o no.','ok'],
+   ['Despertador','06:35','≈ '+sleepH.toFixed(1)+' h dormido si apagas a las 23:15.','ok']
+  ].forEach(([t,h,txt,c])=>{const s=document.createElement('div');s.className='step '+c;s.innerHTML='<span class="t">'+h+'</span><b>'+t+'</b>'+txt;ch.appendChild(s);});
+  const al=document.getElementById('nocheAlert');
+  if(late){al.className='alert';al.textContent='Sales después de las 21:30: esas noches has dormido 5.2 h de media. Recorta la superserie o el último aislamiento, o mueve esta sesión al fin de semana por la mañana.';}
+  else if(endMin>20*60){al.className='alert';al.textContent='Sales después de las 20:00. Se puede, pero deja la cena resuelta antes de ir y no muevas las 23:15.';}
+  else{al.className='alert ok';al.textContent='Buen horario: te quedan más de 3 h entre salir del gym y apagar la luz.';}
+  try{localStorage.setItem('rv3',JSON.stringify({ses,inicio:document.getElementById('inicio').value}));}catch(e){}
+}
+(function(){const el=document.getElementById('sesBtns');Object.keys(S).forEach((k,j)=>{const b=document.createElement('button');b.className='tab';b.type='button';b.id='ses-'+j;b.dataset.k=k;b.textContent=k;b.onclick=()=>{ses=k;render();};el.appendChild(b);});})();
+document.getElementById('inicio').addEventListener('input',render);
+render();
+
+/* gráficas */
+function hbars(id,data,max,goal,h){
+  const svg=document.getElementById(id), L=112, R=330, rowH=(h-30)/data.length, x=v=>L+(R-L)*v/max;
+  let s='';
+  for(let v=0;v<=max;v+=2){s+='<line class="grid" x1="'+x(v)+'" x2="'+x(v)+'" y1="6" y2="'+(h-22)+'"/><text x="'+x(v)+'" y="'+(h-8)+'" text-anchor="middle">'+v+' h</text>';}
+  data.forEach(([lab,v,col],i)=>{const y=8+i*rowH;
+    s+='<text class="lbl" x="'+(L-8)+'" y="'+(y+rowH/2+4)+'" text-anchor="end">'+lab+'</text>'+
+       '<rect x="'+L+'" y="'+(y+4)+'" width="'+(x(v)-L)+'" height="'+(rowH-10)+'" fill="'+col+'"/>'+
+       '<text class="val" x="'+(x(v)+5)+'" y="'+(y+rowH/2+4)+'">'+v.toFixed(1)+'</text>';});
+  if(goal){s+='<line class="goal" x1="'+x(goal)+'" x2="'+x(goal)+'" y1="2" y2="'+(h-22)+'"/><text class="goaltxt" x="'+(x(goal)-4)+'" y="12" text-anchor="end">objetivo</text>';}
+  svg.innerHTML=s;
+}
+hbars('chartBed',[['antes 23:30',6.87,'var(--good)'],['23:30–00:00',5.85,'var(--night)'],['00:00–00:30',5.39,'var(--warn)'],['después 00:30',4.77,'var(--bad)']],8,7,190);
+hbars('chartTrain',[['entreno <18 h',6.36,'var(--good)'],['sin entreno',5.93,'var(--night)'],['entreno ≥18 h',5.15,'var(--bad)']],8,7,150);
+
+/* pendientes */
+const TODO=['Crear en Hevy las 4 rutinas con nombres exactos: TORSO A · PIERNA · TORSO B · POSTERIOR + BRAZO','Poner los timers por ejercicio en cada rutina (tabla de arriba)','Registrar las mancuernas en kg (o confirmar que Hevy convierte bien las libras)','Pesarte 3 mañanas por semana en ayunas, báscula del gym (la de casa −1.1 kg)','Fotos frente / lado / espalda y perímetro de pantorrilla D/I','Comprobar en el gym si Shoulder Press y Lateral Raise son la misma máquina que en julio','Export semanal o mensual de la app de sueño → sleepdata.csv','21-dic: exportar Hevy + sueño y hacer la revisión intermedia','18-ene: revisión formal'];
+let done={};try{done=JSON.parse(localStorage.getItem('rv3todo')||'{}');}catch(e){}
+const ul=document.getElementById('todo');
+TODO.forEach((t,j)=>{const li=document.createElement('li');const l=document.createElement('label');const c=document.createElement('input');c.type='checkbox';c.id='todo-'+j;c.checked=!!done[j];c.onchange=()=>{done[j]=c.checked;try{localStorage.setItem('rv3todo',JSON.stringify(done));}catch(e){}};const s=document.createElement('span');s.textContent=t;l.append(c,s);li.appendChild(l);ul.appendChild(li);});
+</script>
