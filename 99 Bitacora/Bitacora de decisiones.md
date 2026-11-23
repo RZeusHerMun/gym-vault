@@ -23,3 +23,4 @@ Vuelve a [[00 - Inicio]]. Una línea por decisión: fecha · qué · por qué ·
 | 2026-11-23 | Añadir la capa de sueño: objetivo de 6.5 h y luego 7 h, luz apagada ≤23:15; con sueño ≤6 h no se juzga estancamiento | 5.9 h de media, 5.3 h en las últimas 2 semanas; entrenar tarde = −0.8 h | [[2026-11-23 Revision formal]] §5 |
 | 2026-11-23 | Congelar calorías; proteína ≥120 g; −150 kcal si el peso sube >0.5 kg/mes o la cintura pasa de 78 | +2.5 kg en 2 meses (~1.3 kg/mes) | [[Rutina v3 - Constancia Nov26]] |
 | 2026-11-23 | Tobillo dado de alta funcional (~90 %); se retoma el fisio solo si vuelven el dolor o la inestabilidad | Sin dolor al entrenar; inflamación 2–3/10 | [[Registro tobillo]] |
+| 2026-11-23 | Tablero nuevo para la v3 (el de la v2 se conserva sin cambios como historial); scripts con periodo por parámetro y análisis de sueño | Mantener el historial y repetir las revisiones sin editar código | [[Tablero Rutina v3]] |

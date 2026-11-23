@@ -2,8 +2,11 @@
 tipo: programa
 fecha: 2026-09-16
 tags: [gym, programa, tiempos, hevy]
+estado: archivado
 ---
-# Tablero y tiempos de sesión
+# Tablero y tiempos de sesión (v2)
+
+> [!note] Historial: corresponde a la [[Rutina v2 - Regreso Sep26]] (sep–nov 2026). El tablero actual es [[Tablero Rutina v3]]. Este artifact se conserva sin cambios.
 
 Vuelve a [[00 - Inicio]] · Programa: [[Rutina v2 - Regreso Sep26]]
 

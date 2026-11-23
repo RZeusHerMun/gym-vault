@@ -102,5 +102,5 @@ Cumplen el objetivo "volver a la media pre-pausa antes del 8-nov": **no**. La ma
 - [ ] Fotos frente, lado y espalda, y pantorrilla D/I.
 - [ ] 3 pesajes en ayunas esta semana (báscula del gym, o la de casa restando 1.1).
 - [ ] Crear en Hevy las 4 rutinas de la v3 con los nombres exactos.
-- [ ] Adaptar `analisis_hevy.py` (periodo por parámetro, unidades) y arreglar el `.gitignore` (UTF-16).
-- [ ] Actualizar el tablero visual a la v3.
+- [x] Adaptar `analisis_hevy.py` (periodo por parámetro, avisos de unidades) y crear `analisis_sueno.py`; `.gitignore` en UTF-8.
+- [x] Tablero nuevo para la v3 → [[Tablero Rutina v3]] (el de la v2 se conserva como historial).
