@@ -1,13 +1,17 @@
 ---
 tipo: programa
 version: 2
-estado: activo
+estado: archivado
+fin: 2026-11-23
+sucesor: "[[Rutina v3 - Constancia Nov26]]"
 inicio: 2026-09-16
 revision_intermedia: 2026-10-11
 revision_formal: 2026-11-08
 tags: [gym, programa, hipertrofia]
 ---
 # Rutina v2 — Torso/Posterior con re-entrada (Sep 2026)
+
+> [!note] Archivada el 23-nov-2026 → [[Rutina v3 - Constancia Nov26]] · Revisión: [[2026-11-23 Revision formal]]
 
 Vuelve a [[00 - Inicio]] · Origen: [[2026-09-16 Analisis Abr-Sep26]] · Anterior: [[Rutina v1 - Torso-Posterior 4x (Abr-Jul26)]]
 
